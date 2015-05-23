@@ -34,6 +34,32 @@ public class Main {
         SwingUtilities.invokeLater(() -> ui = new MainWindow());
     }
 
+    private class MainWindow extends JFrame {
+        public static final String STATUS_JOINING = "Joining";
+        public static final String STATUS_LOST = "Lost";
+        private final JLabel sniperStatus = createLabel(STATUS_JOINING);
+
+        private JLabel createLabel(String initialText) {
+            JLabel label = new JLabel(initialText);
+            label.setName(SNIPER_STATUS_NAME);
+            label.setBorder(new LineBorder(Color.BLACK));
+            return label;
+        }
+
+        public MainWindow() {
+            super("Auction Sniper");
+            setName(MAIN_WINDOW_NAME);
+            add(sniperStatus);
+            pack();
+            setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+            setVisible(true);
+        }
+
+        public void showStatus(String status) {
+            sniperStatus.setText(status);
+        }
+    }
+
     public static void main(String... args) throws Exception {
         Main main = new Main();
         main.joinAction(
@@ -70,31 +96,5 @@ public class Main {
         connection.connect();
         connection.login(username, password);
         return connection;
-    }
-
-    private class MainWindow extends JFrame {
-        public static final String STATUS_JOINING = "Joining";
-        public static final String STATUS_LOST = "Lost";
-        private final JLabel sniperStatus = createStatusLabel(STATUS_JOINING);
-
-        private JLabel createStatusLabel(String initialText) {
-            JLabel label = new JLabel(initialText);
-            label.setName(SNIPER_STATUS_NAME);
-            label.setBorder(new LineBorder(Color.BLACK));
-            return label;
-        }
-
-        public MainWindow() {
-            super("Auction Sniper");
-            setName(MAIN_WINDOW_NAME);
-            add(sniperStatus);
-            pack();
-            setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-            setVisible(true);
-        }
-
-        public void showStatus(String status) {
-            sniperStatus.setText(status);
-        }
     }
 }
