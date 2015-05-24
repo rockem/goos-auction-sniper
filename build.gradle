@@ -16,3 +16,7 @@ dependencies {
     testCompile 'org.jmock:jmock-legacy:2.6.0'
     testCompile 'org.jmock:jmock:2.6.0'
 }
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
+}
