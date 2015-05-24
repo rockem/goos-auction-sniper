@@ -7,6 +7,7 @@ public class ApplicationRunner {
     public static final String SNIPER_PASSWORD = "sniper";
     private static final String STATUS_JOINING = "Joining";
     private static final String STATUS_LOST = "Lost";
+    public static final String SNIPER_XMPP_ID = "sniper@elis-macbook-pro.local/Smack";
 
     private AuctionSniperDriver driver;
 
@@ -34,5 +35,13 @@ public class ApplicationRunner {
         if (driver != null) {
             driver.dispose();
         }
+    }
+
+    public void hasShownSniperIsBidding() {
+        driver.showsSniperStatus(Main.MainWindow.STATUS_BIDDING);
+    }
+
+    public void showsSniperHasLostAuction() {
+        driver.showsSniperStatus(Main.MainWindow.STATUS_LOST);
     }
 }

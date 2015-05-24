@@ -3,15 +3,18 @@ package org.goos.sniper;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.packet.Message;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
-public class Main {
+public class Main implements AuctionEventListener {
     public static final String MAIN_WINDOW_NAME = "Auction Sniper Main";
     public static final String SNIPER_STATUS_NAME = "SniperStatus";
+    public static final String JOIN_COMMAND_FORMAT = "SQLVersion: 1.1; Command: JOIN;";
+    public static final String BID_COMMAND_FORMAT = "SQLVersion: 1.1; Command: BID; Price: %d;";
 
     private static final String ITEM_ID_AS_LOGIN = "auction-%s";
     private static final String AUCTION_RESOURCE = "Auction";
@@ -25,18 +28,33 @@ public class Main {
     private MainWindow ui;
     private Chat notToBeCGd;
 
-    public Main() {
-        startUserInterface();
+    public Main(XMPPConnection connection) {
+        startUserInterface(connection);
 
     }
 
-    private void startUserInterface() {
-        SwingUtilities.invokeLater(() -> ui = new MainWindow());
+    private void startUserInterface(XMPPConnection connection) {
+        SwingUtilities.invokeLater(() -> {
+            ui = new MainWindow();
+            disconnectWhenUICloses(connection);
+
+        });
     }
 
-    private class MainWindow extends JFrame {
+    @Override
+    public void auctionClosed() {
+        SwingUtilities.invokeLater(() -> ui.showStatus(MainWindow.STATUS_LOST));
+    }
+
+    @Override
+    public void currentPrice(int price, int increment) {
+
+    }
+
+    public class MainWindow extends JFrame {
         public static final String STATUS_JOINING = "Joining";
         public static final String STATUS_LOST = "Lost";
+        public static final String STATUS_BIDDING = "Bidding";
         private final JLabel sniperStatus = createLabel(STATUS_JOINING);
 
         private JLabel createLabel(String initialText) {
@@ -60,24 +78,30 @@ public class Main {
         }
     }
 
+    private void disconnectWhenUICloses(XMPPConnection connection) {
+        ui.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                connection.disconnect();
+            }
+        });
+    }
+
     public static void main(String... args) throws Exception {
-        Main main = new Main();
+        XMPPConnection connection = connection(args[ARG_HOSTNAME], args[ARG_USERNAME], args[ARG_PASSWORD]);
+        Main main = new Main(connection);
         main.joinAction(
-                connection(args[ARG_HOSTNAME], args[ARG_USERNAME], args[ARG_PASSWORD]),
+                connection,
                 args[ARG_ITEM_ID]);
     }
 
     private void joinAction(XMPPConnection connection, String itemId) throws XMPPException {
         Chat chat = connection.getChatManager().createChat(
                 auctionId(itemId, connection),
-                (aChat, message) -> {
-                    SwingUtilities.invokeLater(() -> {
-                        ui.showStatus(MainWindow.STATUS_LOST);
-                    });
-                }
+                new AuctionMessageTranslator(this)
         );
         this.notToBeCGd = chat;
-        chat.sendMessage(new Message());
+        chat.sendMessage(JOIN_COMMAND_FORMAT);
     }
 
     private static XMPPConnection connection(String hostname, String username, String password) throws XMPPException {
@@ -91,10 +115,4 @@ public class Main {
         return String.format(AUCTION_ID_FORMAT, itemId, connection.getServiceName());
     }
 
-    private static XMPPConnection connectTo(String hostname, String username, String password) throws XMPPException {
-        XMPPConnection connection = new XMPPConnection(hostname);
-        connection.connect();
-        connection.login(username, password);
-        return connection;
-    }
 }

@@ -13,16 +13,31 @@ public class AuctionSniperE2ETest {
     @Before
     public void setUp() throws Exception {
         System.setProperty("com.objogate.wl.keyboard", "US");
-
     }
 
-    @Test public void
-    sniperJoinsAuctionUntilAuctionCloses() throws Exception {
+    @Test
+    public void sniperJoinsAuctionUntilAuctionCloses() throws Exception {
         auction.startSellingItem();
         application.startBiddingIn(auction);
-        auction.hasReceivedJoinRequestFromSniper();
+        auction.hasReceivedJoinRequestFromSniper(ApplicationRunner.SNIPER_XMPP_ID);
         auction.announceClosed();
         application.hasShownSniperHasLostAuction();
+    }
+
+    @Test
+    public void sniperMakeAHigherBidButLoses() throws Exception {
+        auction.startSellingItem();
+
+        application.startBiddingIn(auction);
+        auction.hasReceivedJoinRequestFromSniper(ApplicationRunner.SNIPER_XMPP_ID);
+
+        auction.reportPrice(1000, 98, "other bidder");
+        application.hasShownSniperIsBidding();
+
+        auction.hasReceiveBid(1098, ApplicationRunner.SNIPER_XMPP_ID);
+
+        auction.announceClosed();
+        application.showsSniperHasLostAuction();
     }
 
     @After
@@ -30,7 +45,8 @@ public class AuctionSniperE2ETest {
         auction.stop();
     }
 
-    @After public void stopApplication() {
+    @After
+    public void stopApplication() {
         application.stop();
     }
 
