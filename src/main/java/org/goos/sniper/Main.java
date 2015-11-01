@@ -48,6 +48,7 @@ public class Main {
         public static final String STATUS_LOST = "Lost";
         public static final String STATUS_BIDDING = "Bidding";
         public static final String STATUS_WINNING = "Winning";
+        public static final String STATUS_WON = "Won";
         private final JLabel sniperStatus = createLabel(STATUS_JOINING);
         private JLabel createLabel(String initialText) {
             JLabel label = new JLabel(initialText);
@@ -93,7 +94,8 @@ public class Main {
 
         Auction auction = new XMPPAuction(chat);
         chat.addMessageListener(new AuctionMessageTranslator(
-                new AuctionSniper(auction, new SniperStateDisplay())));
+                new AuctionSniper(auction, new SniperStateDisplay()),
+                connection.getUser()));
         auction.join();
     }
 
@@ -151,6 +153,11 @@ public class Main {
         @Override
         public void sniperWinning() {
             showStatus(MainWindow.STATUS_WINNING);
+        }
+
+        @Override
+        public void sniperWon() {
+            showStatus(MainWindow.STATUS_WON);
         }
     }
 
