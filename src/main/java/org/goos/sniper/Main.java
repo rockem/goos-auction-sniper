@@ -6,6 +6,8 @@ import org.jivesoftware.smack.XMPPException;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -38,7 +40,6 @@ public class Main {
         SwingUtilities.invokeLater(() -> {
             ui = new MainWindow();
             disconnectWhenUICloses(connection);
-
         });
     }
 
@@ -49,28 +50,61 @@ public class Main {
         public static final String STATUS_BIDDING = "Bidding";
         public static final String STATUS_WINNING = "Winning";
         public static final String STATUS_WON = "Won";
-        private final JLabel sniperStatus = createLabel(STATUS_JOINING);
-        private JLabel createLabel(String initialText) {
-            JLabel label = new JLabel(initialText);
-            label.setName(SNIPER_STATUS_NAME);
-            label.setBorder(new LineBorder(Color.BLACK));
-            return label;
-        }
+        private static final String SNIPERS_TABLE_NAME = "snipersTable";
+        private SnipersTableModel snipers = new SnipersTableModel();
 
         public MainWindow() {
             super("Auction Sniper");
             setName(MAIN_WINDOW_NAME);
-            add(sniperStatus);
+            fillContentPane(makeSnipersTable());
             pack();
             setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             setVisible(true);
         }
 
+        private void fillContentPane(JTable table) {
+            final Container contentPane = getContentPane();
+            contentPane.setLayout(new BorderLayout());
+            contentPane.add(new JScrollPane(table), BorderLayout.CENTER);
+        }
+
+        private JTable makeSnipersTable() {
+            final JTable snipersTable = new JTable(snipers);
+            snipersTable.setName(SNIPERS_TABLE_NAME);
+            return snipersTable;
+        }
+
         public void showStatus(String status) {
-            sniperStatus.setText(status);
+            snipers.setStatusText(status);
         }
 
     }
+
+    private class SnipersTableModel extends AbstractTableModel {
+
+        private String statusText = MainWindow.STATUS_JOINING;
+
+        @Override
+        public int getRowCount() {
+            return 1;
+        }
+
+        @Override
+        public int getColumnCount() {
+            return 1;
+        }
+
+        @Override
+        public Object getValueAt(int rowIndex, int columnIndex) {
+            return statusText;
+        }
+
+        public void setStatusText(String statusText) {
+            this.statusText = statusText;
+            fireTableRowsUpdated(0, 0);
+        }
+    }
+
     private void disconnectWhenUICloses(XMPPConnection connection) {
         ui.addWindowListener(new WindowAdapter() {
             @Override

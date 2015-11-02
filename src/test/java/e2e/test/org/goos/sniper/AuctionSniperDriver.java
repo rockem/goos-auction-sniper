@@ -3,9 +3,11 @@ package e2e.test.org.goos.sniper;
 import com.objogate.wl.swing.AWTEventQueueProber;
 import com.objogate.wl.swing.driver.JFrameDriver;
 import com.objogate.wl.swing.driver.JLabelDriver;
+import com.objogate.wl.swing.driver.JTableDriver;
 import com.objogate.wl.swing.gesture.GesturePerformer;
 import org.goos.sniper.Main;
 
+import static com.objogate.wl.swing.matcher.JLabelTextMatcher.withLabelText;
 import static org.hamcrest.Matchers.equalTo;
 
 public class AuctionSniperDriver extends JFrameDriver {
@@ -17,6 +19,6 @@ public class AuctionSniperDriver extends JFrameDriver {
     }
 
     public void showsSniperStatus(String status) {
-        new JLabelDriver(this, named(Main.SNIPER_STATUS_NAME)).hasText(equalTo(status));
+        new JTableDriver(this).hasCell(withLabelText(equalTo(status)));
     }
 }
