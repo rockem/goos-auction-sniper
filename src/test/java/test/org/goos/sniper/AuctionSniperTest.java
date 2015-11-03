@@ -27,7 +27,7 @@ public class AuctionSniperTest {
     @Test
     public void reportsLostWhenAuctionClosesImmediately() throws Exception {
         context.checking(new Expectations() {{
-            oneOf(sniperListener).sniperLost();
+            oneOf(sniperListener).sniperStateChanged(with(aSniperThatIs(SniperState.LOST)));
         }});
 
         sniper.auctionClosed();
@@ -67,7 +67,7 @@ public class AuctionSniperTest {
         context.checking(new Expectations() {{
             ignoring(auction);
             allowing(sniperListener).sniperStateChanged(with(aSniperThatIs(SniperState.BIDDING))); then(sniperState.is("bidding"));
-            atLeast(1).of(sniperListener).sniperLost(); when(sniperState.is("bidding"));
+            atLeast(1).of(sniperListener).sniperStateChanged(with(aSniperThatIs(SniperState.LOST))); when(sniperState.is("bidding"));
         }});
 
         sniper.currentPrice(123, 45, AuctionEventListener.PriceSource.FromOtherBidder);
@@ -88,7 +88,7 @@ public class AuctionSniperTest {
         context.checking(new Expectations() {{
             ignoring(auction);
             allowing(sniperListener).sniperStateChanged(with(aSniperThatIs(SniperState.WINNING))); then(sniperState.is("winning"));
-            atLeast(1).of(sniperListener).sniperWon(); when(sniperState.is("winning"));
+            atLeast(1).of(sniperListener).sniperStateChanged(with(aSniperThatIs(SniperState.WON))); when(sniperState.is("winning"));
         }});
 
         sniper.currentPrice(123, 45, AuctionEventListener.PriceSource.FromSniper);
