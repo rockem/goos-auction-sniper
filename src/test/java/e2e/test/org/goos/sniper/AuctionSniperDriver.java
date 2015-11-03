@@ -29,7 +29,4 @@ public class AuctionSniperDriver extends JFrameDriver {
 
     }
 
-    public void showsSniperStatus(String status) {
-        new JTableDriver(this).hasCell(withLabelText(equalTo(status)));
-    }
 }

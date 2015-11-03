@@ -5,11 +5,6 @@ import java.awt.*;
 
 public class MainWindow extends JFrame {
 
-    public static final String STATUS_JOINING = "Joining";
-    public static final String STATUS_LOST = "Lost";
-    public static final String STATUS_BIDDING = "Bidding";
-    public static final String STATUS_WINNING = "Winning";
-    public static final String STATUS_WON = "Won";
     private SnipersTableModel snipers = new SnipersTableModel();
 
     public MainWindow() {
@@ -31,10 +26,6 @@ public class MainWindow extends JFrame {
         final JTable snipersTable = new JTable(snipers);
         snipersTable.setName(Main.SNIPERS_TABLE_NAME);
         return snipersTable;
-    }
-
-    public void showStatus(String status) {
-        snipers.setState(status);
     }
 
     public void sniperStatusChanged(SniperSnapshot state) {

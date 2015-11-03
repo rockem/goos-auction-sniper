@@ -21,7 +21,7 @@ public class AuctionSniperE2ETest {
         application.startBiddingIn(auction);
         auction.hasReceivedJoinRequestFromSniper(ApplicationRunner.SNIPER_XMPP_ID);
         auction.announceClosed();
-        application.hasShownSniperHasLostAuction();
+        application.showsSniperHasLostAuction();
     }
 
     @Test
