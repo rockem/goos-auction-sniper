@@ -32,6 +32,8 @@ public class ApplicationRunner {
         thread.setDaemon(true);
         thread.start();
         driver = new AuctionSniperDriver(TIMEOUT_1_SEC);
+        driver.hasTitle(MainWindow.APPLICATION_TITLE);
+        driver.hasColumnTitles();
         showSniperStatusFor(SniperState.JOINING);
     }
 

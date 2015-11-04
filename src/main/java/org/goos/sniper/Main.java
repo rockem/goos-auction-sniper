@@ -23,6 +23,8 @@ public class Main {
     private static final int ARG_PASSWORD = 2;
     private static final int ARG_ITEM_ID = 3;
 
+
+    private final SnipersTableModel snipers = new SnipersTableModel();
     private MainWindow ui;
     private Chat notToBeCGd;
 
@@ -34,7 +36,7 @@ public class Main {
 
     private void startUserInterface(XMPPConnection connection) {
         SwingUtilities.invokeLater(() -> {
-            ui = new MainWindow();
+            ui = new MainWindow(snipers);
             disconnectWhenUICloses(connection);
         });
     }
@@ -62,7 +64,7 @@ public class Main {
 
         Auction auction = new XMPPAuction(chat);
         chat.addMessageListener(new AuctionMessageTranslator(
-                new AuctionSniper(itemId, auction, new SniperStateDisplayer()),
+                new AuctionSniper(itemId, auction, new SwingThreadSniperListener(snipers)),
                 connection.getUser()));
         auction.join();
     }
@@ -102,12 +104,18 @@ public class Main {
         }
     }
 
-    public class SniperStateDisplayer implements SniperListener {
+    public class SwingThreadSniperListener implements SniperListener {
+
+        private final SnipersTableModel snipers;
+
+        public SwingThreadSniperListener(SnipersTableModel snipers) {
+            this.snipers = snipers;
+        }
 
         @Override
         public void sniperStateChanged(SniperSnapshot state) {
             SwingUtilities.invokeLater(() ->
-                    ui.sniperStatusChanged(state));
+                    snipers.sniperStateChanged(state));
         }
     }
 

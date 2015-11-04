@@ -5,14 +5,42 @@ import javax.swing.table.AbstractTableModel;
 public class SnipersTableModel extends AbstractTableModel {
 
     public enum Column {
-        ITEM_IDENTIFIER,
-        LAST_PRICE,
-        LAST_BID,
-        SNIPER_STATUS;
+        ITEM_IDENTIFIER("Item") {
+            @Override
+            public Object valueIn(SniperSnapshot snapshot) {
+                return snapshot.itemId;
+            }
+        },
+        LAST_PRICE("Last Price") {
+            @Override
+            public Object valueIn(SniperSnapshot snapshot) {
+                return snapshot.lastPrice;
+            }
+        },
+        LAST_BID("Last Bid") {
+            @Override
+            public Object valueIn(SniperSnapshot snapshot) {
+                return snapshot.lastBid;
+            }
+        },
+        SNIPER_STATUS("State") {
+            @Override
+            public Object valueIn(SniperSnapshot snapshot) {
+                return textFor(snapshot.state);
+            }
+        };
+
+        public final String name;
+
+        Column(String name) {
+            this.name = name;
+        }
 
         public static Column at(int offset) {
             return values()[offset];
         }
+
+        abstract public Object valueIn(SniperSnapshot snapshot);
     }
 
     public static final String[] STATUS_TEXT = {
@@ -35,18 +63,7 @@ public class SnipersTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        switch (Column.at(columnIndex)) {
-            case ITEM_IDENTIFIER:
-                return snapshot.itemId;
-            case LAST_PRICE:
-                return snapshot.lastPrice;
-            case LAST_BID:
-                return snapshot.lastBid;
-            case SNIPER_STATUS:
-                return textFor(snapshot.state);
-            default:
-                throw new IllegalArgumentException("No column at " + columnIndex);
-        }
+        return Column.at(columnIndex).valueIn(snapshot);
     }
 
     public static String textFor(SniperState state) {
@@ -56,5 +73,10 @@ public class SnipersTableModel extends AbstractTableModel {
     public void sniperStateChanged(SniperSnapshot newSnapshot) {
         this.snapshot = newSnapshot;
         fireTableRowsUpdated(0, 0);
+    }
+
+    @Override
+    public String getColumnName(int column) {
+        return Column.at(column).name;
     }
 }

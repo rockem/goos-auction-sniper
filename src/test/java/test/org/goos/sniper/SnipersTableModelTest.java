@@ -15,6 +15,7 @@ import static org.goos.sniper.SnipersTableModel.Column;
 import static org.goos.sniper.SnipersTableModel.textFor;
 import static org.hamcrest.Matchers.samePropertyValuesAs;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class SnipersTableModelTest {
@@ -57,5 +58,12 @@ public class SnipersTableModelTest {
 
     private Matcher<TableModelEvent> aRowChangedEvent() {
         return samePropertyValuesAs(new TableModelEvent(model, 0));
+    }
+
+    @Test
+    public void delegateColumnsHeading() throws Exception {
+        for(Column column : Column.values()) {
+            assertEquals(column.name, model.getColumnName(column.ordinal()));
+        }
     }
 }
